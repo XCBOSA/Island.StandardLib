@@ -23,6 +23,49 @@ Natural Island (iOS APP) 项目采用Island.StandardLib进行C/S连接。
 一切必须重写的函数都将以 PassXXX 命名，一切可选重写的函数都将以 OnXXX 命名。
 
 # Server 项目
-1. 创建 Player 类型  
+1. 创建 Player 类  
 Player类型是一个动态类，继承自ConnectionPlayerBase。Island.StandardLib将为您处理一切连接事务，在任何客户端成功连接后，会为您自动创建一个Player类的实例，每个客户端都会对应一个不同的Player实例。当然，如果您要做的是1对1的连接，那么整个程序中只有一个Player实例。  
-您需要重写ConnectionPlayerBase的void PassCommand(ConnectCommand command)函数。这个函数的意义是处理来自客户端的消息，就像处理UI中的 OnKeyDown 一样，您必须保证函数运行时间尽可能短。您的代码在PassCommand中执行会使传输操作暂停，当这个函数执行结束时传输操作会恢复。例如，客户端向您发送了一副图片，您可以在此处处理。
+a.您需要重写void PassCommand(ConnectCommand command)函数。这个函数的意义是处理来自客户端的消息，就像处理UI中的 OnKeyDown 一样，您必须保证函数运行时间尽可能短。您的代码在PassCommand中执行会使传输操作暂停，当这个函数执行结束时传输操作会恢复。例如，客户端向您发送了一副图片，您可以在此处处理。  
+```cs
+public class Player : ConnectionPlayerBase
+{
+    const int CMD_UPDATE_IMG = 0x1;  // 定义更新图片的指令 Name
+
+    protected override void PassCommand(ConnectCommand command)
+    {
+        // 这个客户端向服务器发送了一条指令，指令的内容在 command 参数中
+        // command.Name 一个int，用来保存指令名字，比如 "更新图片"，但是在这里，为了方便传输和存储，指令是一个数字。
+        // command.Args 一个"数组"，用来保存数据，比如 "更新图片" 指令的数据就是一个图片。(其实这是 Island.StandardLib 提供的 StorableMultArray，可序列化可变长且不定项长数组，后续介绍)
+        switch (command.Name)
+        {
+            case CMD_UPDATE_IMG:
+                StorImage img = command.Args[0].As<StorImage>();  // 取数组第0项，将值转化为 StorImage （即可传输的图片类型)
+                byte[] raw = img.Data;       // raw 即为传输中使用的已编码图像
+                Image img = img.Image;       // img 即为解码后的 .Net 图像
+
+                // Do somethings...
+                // Such as UpdateImageToForm(img)...
+
+                break;
+        }
+    }
+}
+```
+2. 创建 Server 类  
+Server类也是一个动态类，继承自 ConnectionServer<Player, LoginOrRegisterRequest>。在此泛型参数中，Player即为第一步中创建的Player类，LoginOrRegisterRequest是玩家登录时发送的登录包的数据模型，填写LoginOrRegisterRequest即使用Island.StandardLib自带的默认登录数据模型，您也可以填写EncryptedData<LoginOrRegisterRequest>来加密传输，也可以自定义这个登录数据模型的格式（后续详细讲解，在此处理解为数据模型即可）  
+a.您需要重写LoginResult PassLogin(LoginOrRegisterRequest request)函数。这个函数的意义是处理登录请求，并判断是否让这个请求登录（即连接，反之直接T下线）。将此函数设置为必须重写的意义是，无论是否需要登录，您都应该验证请求是否来自您编写的客户端来保证安全。此函数返回是否通过登录请求，在本机测试时可直接 return LoginResult.Success; 来通过请求。  
+b.您需要重写RegisterResult PassReg(LoginOrRegisterRequest request)函数。这个函数的意义是处理注册请求，您可以查看详细文档来定义您的注册流程，作为快速开始教程此处不展开讲解，不需要注册直接 return RegisterResult.ConnectionError; 。
+```
+public class Server : ConnectionServer<Player, LoginOrRegisterRequest>
+{
+    public static Server instance;  // 一般来说Server只有一个实例，所以可以使用单例模式
+
+    public Server() : base("服务器监听的IP地址", 服务器监听的端口, 1, 1024 * 1024 * 1024)
+    {
+        instance = this;
+    }
+
+    protected override LoginResult PassLogin(LoginOrRegisterRequest request) => OnlinePlayers.Count == 0 ? LoginResult.Success : LoginResult.AlreadyOnline; // 仅允许一个客户端连接
+    protected override RegisterResult PassReg(LoginOrRegisterRequest request) => RegisterResult.ConnectionError;
+}
+```
