@@ -187,10 +187,106 @@ const int CMD_TEST = 0x2;        // 定义测试的指令的Name
 | StorableMultArray Args | 指令数据 |  
 ### EncryptedData<DataType> : where DataType : IStorable, new()
 *加密的数据*  
-例如 EncryptedData<StorableDictionary<SString, SString>> 可表示一个加密的字典容器，传输时更安全。
-在加密和解密时需要指定 EncrypterBase 和 Key(如果需要)，Island.StandardLib提供了DES加密算法 RijndaelEncrypter。
+例如 EncryptedData<StorableDictionary<SString, SString>> 可表示一个加密的字典容器，传输时更安全。  
+在加密和解密时需要指定 EncrypterBase 和 Key(如果需要)，Island.StandardLib提供了DES加密算法 RijndaelEncrypter。  
 ### Vector2 Vector2L Vector3 Vector3L ......
-*N维向量*
-仅用于存储，不建议使用那些运算的函数，没有符号重载，很久之前写的不建议用不排除有错误。
-# Island.StandardLib 自定义可序列化数据模型
-在 Island.StandardLib 中，自定义可序列化
+*N维向量*  
+仅用于存储，不建议使用那些运算的函数，没有符号重载，很久之前写的不建议用不排除有错误。  
+# Island.StandardLib 自定义可序列化数据模型  
+在 Island.StandardLib 中，自定义可序列化函数需要继承 IStorable 接口，实现 void ReadFromData(DataStorage data) 和 void WriteToData(DataStorage data) 两个函数。  
+以OOP入门的学生信息类为例，我们将它改造成可序列化的类。   
+```cs
+public class Student : IStorable
+{
+    public Student() { }   // 必须包含无参构造函数
+    
+    public string Name;    // 学生姓名
+    public int Age;        // 学生年龄
+    public StorableFixedArray<SInt> SubjectScores;   // 每科目的成绩，此处原为 int[] SubjectScores，是一个每项固定长度的数组，改造为 StorableFixedArray<> ，模板参数为 int，但模板参数需要使用可序列化的 int，即 SInt，故写作 StorableFixedArray<SInt>
+    
+    // 从 DataStorage 中读出数据，使用 data.Read(out xxx)
+    public void ReadFromData(DataStorage data)
+    {
+        data.Read(out Name);
+        data.Read(out Age);            // 此处使用 DataStorage::Read<T>(out T) where T : IStorable, new() 的重载，模板参数为 StorableFixedArray<SInt>
+        data.Read(out SubjectScores);
+    }
+    
+    // 将数据写入 DataStorage，使用 data.Write(xxx)
+    // 注意：读写一定要顺序一致，否则会破坏读写过程
+    public void WriteToData(DataStorage data)
+    {
+        data.Write(Name);
+        data.Write(Age);
+        data.Write(SubjectScores);
+    }
+    
+    public int CalcTotalScore()
+    {
+        int value = 0;
+        foreach (SInt it in SubjectScores) value += it; // StorableFixedArray<SInt> 和 int[] 的用法相似，只需要简单修改即可
+        return value;
+    }
+}
+```
+### 序列化嵌套
+我们继续改造 IStorable 类，并新增一个类来保存学生的ABC科目成绩。
+```
+public class Score : IStorable
+{
+    public int A, B, C;
+    
+    public Score() { }  // 必须包含无参构造函数
+    
+    public Score(int a, int b, int c)
+    {
+        A = a;
+        B = b;
+        C = c;
+    }
+    
+    public int CalcTotalScore() => A + B + C;
+    
+    public void ReadFromData(DataStorage data)
+    {
+        data.Read(out A);
+        data.Read(out B);
+        data.Read(out C);
+    }
+    
+    public void WriteToData(DataStorage data)
+    {
+        data.Write(A);
+        data.Write(B);
+        data.Write(C);
+    }
+}
+
+public class Student : IStorable
+{
+    public Student() { }
+
+    public string Name;    // 学生姓名
+    public int Age;        // 学生年龄
+    public Score SubjectScores;   // 每科目的成绩，我们将它改造为 Score 类型的成员。
+    
+    // 从 DataStorage 中读出数据，使用 data.Read(out xxx)
+    public void ReadFromData(DataStorage data)
+    {
+        data.Read(out Name);
+        data.Read(out Age);             // 此处依然使用 DataStorage::Read<T>(out T) where T : IStorable, new() 的重载，只不过当前的模板参数为 Score
+        data.Read(out SubjectScores);
+    }
+    
+    // 将数据写入 DataStorage，使用 data.Write(xxx)
+    // 注意：读写一定要顺序一致，否则会破坏读写过程
+    public void WriteToData(DataStorage data)
+    {
+        data.Write(Name);
+        data.Write(Age);
+        data.Write(SubjectScores);
+    }
+}
+
+
+```
