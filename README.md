@@ -55,7 +55,7 @@ public class Player : ConnectionPlayerBase
 Server类也是一个动态类，继承自 ConnectionServer<Player, LoginOrRegisterRequest>。在此泛型参数中，Player即为第一步中创建的Player类，LoginOrRegisterRequest是玩家登录时发送的登录包的数据模型，填写LoginOrRegisterRequest即使用Island.StandardLib自带的默认登录数据模型，您也可以填写EncryptedData<LoginOrRegisterRequest>来加密传输，也可以自定义这个登录数据模型的格式（后续详细讲解，在此处理解为数据模型即可）  
 a.您需要重写LoginResult PassLogin(LoginOrRegisterRequest request)函数。这个函数的意义是处理登录请求，并判断是否让这个请求登录（即连接，反之直接T下线）。将此函数设置为必须重写的意义是，无论是否需要登录，您都应该验证请求是否来自您编写的客户端来保证安全。此函数返回是否通过登录请求，在本机测试时可直接 return LoginResult.Success; 来通过请求。  
 b.您需要重写RegisterResult PassReg(LoginOrRegisterRequest request)函数。这个函数的意义是处理注册请求，您可以查看详细文档来定义您的注册流程，作为快速开始教程此处不展开讲解，不需要注册直接 return RegisterResult.ConnectionError; 。
-```
+```cs
 public class Server : ConnectionServer<Player, LoginOrRegisterRequest>
 {
     public static Server instance;  // 一般来说Server只有一个实例，所以可以使用单例模式
