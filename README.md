@@ -230,7 +230,7 @@ public class Student : IStorable
 }
 ```
 ### 序列化嵌套
-我们继续改造 IStorable 类，并新增一个类来保存学生的ABC科目成绩。
+我们继续改造 Student 类，并新增一个 Score 类来保存学生的ABC科目成绩。
 ```
 public class Score : IStorable
 {
@@ -287,6 +287,49 @@ public class Student : IStorable
         data.Write(SubjectScores);
     }
 }
-
-
 ```
+可见，序列化过程中可以嵌套其它的序列化类。
+### 序列化继承
+我们继续改造 Student 类，将分数分离出去。
+```
+public class Student : IStorable
+{
+    public Student() { }
+    
+    public string Name;    // 学生姓名
+    public int Age;        // 学生年龄
+    
+    public void ReadFromData(DataStorage data)
+    {
+        data.Read(out Name);
+        data.Read(out SubjectScores);
+    }
+    
+    public void WriteToData(DataStorage data)
+    {
+        data.Write(Name);
+        data.Write(SubjectScores);
+    }
+}
+
+public class ScoredStudent : Student, IStorable
+{
+    public ScoredStudent() { }
+    
+    public StorableFixedArray<SInt> Scores;
+    
+    public void ReadFromData(DataStorage data)
+    {
+        base.ReadFromData(data);     // 让基类读取自己的信息
+        data.Read(out Scores);       // 读取本类的信息
+    }
+    
+    public void WriteToData(DataStorage data)
+    {
+        base.WriteToData(data);      // 让基类写入自己的信息
+        data.Write(Scores);          // 写入本类的信息
+    }
+}
+可见，实现序列化的类可以被继承，但子类若包含要保存的成员变量，子类也必须实现 IStorable 接口，然后在读写的时候先调用基类的读写函数，再读写自己的成员。
+```
+
