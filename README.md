@@ -84,3 +84,38 @@ public class Program
 }
 ```
 到现在为止你已经创建好了服务器，如果你开启了控制台(生成命令行程序，或手动AllocConsole)，有没有看到那个伟大的Logo呢？笑）
+# Client 项目
+1. 创建 Client 类  
+Client类是一个动态类，继承自 ConnectionClient  
+a.您需要重写void PassCommand(ConnectCommand command)函数，含义与Player中相同。  
+```cs
+public class Client : ConnectionClient
+{
+    const int CMD_UPDATE_IMG = 0x1;  // 定义更新图片的指令的Name
+    const int CMD_TEST = 0x2;        // 定义测试的指令的Name
+
+    public Client(string addr, int port) : base(addr, port, 1, false, 1024 * 1024 * 1024) { }
+
+    protected override void OnConnectionBegin()
+    {
+        base.OnConnectionBegin();
+        Logger.Log("连接成功");
+        CommandSendPool.AddCommand(CMD_TEST.CommandWithArgs("Hello server!"));
+    }
+
+    protected override void PassCommand(ConnectCommand command)
+    {
+        switch (command.Name)
+        {
+            case CMD_UPDATE_IMG:
+                StorImage img = new StorImage(Image.FromXXX(xxx)); // 从Image生成StorImage
+                CommandSendPool.AddCommand(CMD_UPDATE_IMG.CommandWithArgs(img));
+                break;
+            case CMD_TEST:
+                Logger.Log(LogLevel.Default, command.Args[0].AsString());
+                CommandSendPool.AddCommand(CMD_TEST.CommandWithArgs("!!!Client Received Your Message!!!"));
+                break;
+        }
+    }
+}
+```
