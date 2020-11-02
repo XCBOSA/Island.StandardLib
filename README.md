@@ -120,14 +120,14 @@ public class Client : ConnectionClient
 }
 ```
 2. 启动你的客户端
-···cs
+```cs
 public class Program
 {
     static void Main(string[] args)
     {
-        Client cl = new Client(ipaddr.Text, port);
-        cl.ConnectAsLogin(0, " ");
+        Client cl = new Client("服务器正在监听的地址", 服务器正在监听的端口);
+        cl.ConnectAsLogin(0, " "); // 不需要账号密码
         while (true) Thread.Sleep(1);
     }
 }
-···
+```
