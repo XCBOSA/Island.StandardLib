@@ -119,3 +119,15 @@ public class Client : ConnectionClient
     }
 }
 ```
+2. 启动你的客户端
+···cs
+public class Program
+{
+    static void Main(string[] args)
+    {
+        Client cl = new Client(ipaddr.Text, port);
+        cl.ConnectAsLogin(0, " ");
+        while (true) Thread.Sleep(1);
+    }
+}
+···
