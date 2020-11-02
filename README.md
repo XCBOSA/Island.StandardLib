@@ -231,7 +231,7 @@ public class Student : IStorable
 ```
 ### 序列化嵌套
 我们继续改造 Student 类，并新增一个 Score 类来保存学生的ABC科目成绩。
-```
+```cs
 public class Score : IStorable
 {
     public int A, B, C;
@@ -291,7 +291,7 @@ public class Student : IStorable
 可见，序列化过程中可以嵌套其它的序列化类。
 ### 序列化继承
 我们继续改造 Student 类，将分数分离出去。
-```
+```cs
 public class Student : IStorable
 {
     public Student() { }
