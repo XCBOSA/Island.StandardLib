@@ -162,4 +162,30 @@ const int CMD_TEST = 0x2;        // 定义测试的指令的Name
 | :----: | :----: |
 | StorImage(Image img) | 编码整个图像并初始化 |
 | byte *Data | Raw 格式的二进制已编码数据 |
-| Image Image | 编码或解码数据 |
+| Image Image | 编码或解码数据 |  
+### MultData
+*万能存储类*  
+可存储各种类型  
+### StorableDictionary<TKey, TValue> where TKey : IStorable, new() where TValue : IStorable, new()
+*可序列化的字典容器*  
+用法同 Dictionary<TKey, TValue>  
+### StorableFixedArray<T> where T : IStorable, new()
+*可序列化的 固定项长 不定长度 的数组容器*  
+用法同 List<T>
+### StorableMultArray
+*可序列化的 不定项长 不定长度 的数据容器*  
+类似于 List<Object>，每一项可存储不同元素。等同于 StorableFixedArray<MultData> ，即每项存储的内容均为MultData，MultData的长度不固定，故从MultData获取数据时需指定类型，比如 T object = <MultData>.As<T>(); 或使用 <MultData>.AsXXX(); ，XXX为基本类型。
+### MultiSizeData
+*支持跨线程操作版MultData*  
+实现更多操作  
+### ConnectCommand
+*传输时使用的序列化类型*  
+可以使用 0x0.CommandWithArgs(args0, args1, ...) 来快速创建ConnectCommand
+| 成员 | 含义 |
+| :----: | :----: |
+| int Name | 指令名称 |
+| StorableMultArray Args | 指令数据 |  
+### EncryptedData<DataType> : where DataType : IStorable, new()
+*加密的数据*  
+例如 EncryptedData<StorableDictionary<SString, SString>> 可表示一个加密的字典容器，传输时更安全。
+在加密和解密时需要指定 EncrypterBase 和 Key(如果需要)，Island.StandardLib提供了DES加密算法 RijndaelEncrypter。
