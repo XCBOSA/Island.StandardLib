@@ -75,3 +75,11 @@ public class Server : ConnectionServer<Player, LoginOrRegisterRequest>
     protected override RegisterResult PassReg(LoginOrRegisterRequest request) => RegisterResult.ConnectionError;
 }
 ```
+3. 启动你的服务器
+你可以在任何地方启动你的服务器，只需要使用 new Server() 即可。例如：
+```
+public class Program
+{
+    static void Main(string[] args) => new Server();
+}
+```
