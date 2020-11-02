@@ -189,3 +189,8 @@ const int CMD_TEST = 0x2;        // 定义测试的指令的Name
 *加密的数据*  
 例如 EncryptedData<StorableDictionary<SString, SString>> 可表示一个加密的字典容器，传输时更安全。
 在加密和解密时需要指定 EncrypterBase 和 Key(如果需要)，Island.StandardLib提供了DES加密算法 RijndaelEncrypter。
+### Vector2 Vector2L Vector3 Vector3L ......
+*N维向量*
+仅用于存储，不建议使用那些运算的函数，没有符号重载，很久之前写的不建议用不排除有错误。
+# Island.StandardLib 自定义可序列化数据模型
+在 Island.StandardLib 中，自定义可序列化
