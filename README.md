@@ -132,3 +132,12 @@ public class Program
 }
 ```
 到现在为止，你可以先指定监听地址为127.0.0.1（本机），启动你的服务器，再启动你的客户端，如果一切正确，你应该能看到服务器不断地打印 !!!Client Received Your Message!!! ，客户端不断地打印 !!!Server Received Your Message!!! ，恭喜你，你已经成功创建了一个服务器和客户端。
+# StandardDataStructure 项目
+此项目为启发式项目，不详细在教程中展开。  
+你可能已经发现，
+```
+const int CMD_UPDATE_IMG = 0x1;  // 定义更新图片的指令的Name
+const int CMD_TEST = 0x2;        // 定义测试的指令的Name
+```
+此代码在两个项目中都出现了。为了避免改动时只改了一方忘记改另一方，方便处理，所以创建 StandardDataStructure 存放共有的内容。具体类自行设计。  
+此外，此项目中应该存放传输的数据模型。Island.StandardLib只提供了有限的常见数据模型，更多的模型需要您自己描述。有关介绍参见下一章。  
