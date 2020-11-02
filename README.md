@@ -83,3 +83,4 @@ public class Program
     static void Main(string[] args) => new Server();
 }
 ```
+到现在为止你已经创建好了服务器，如果你开启了控制台(生成命令行程序，或手动AllocConsole)，有没有看到那个伟大的Logo呢？笑）
