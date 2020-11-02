@@ -29,7 +29,8 @@ a.您需要重写void PassCommand(ConnectCommand command)函数。这个函数�
 ```cs
 public class Player : ConnectionPlayerBase
 {
-    const int CMD_UPDATE_IMG = 0x1;  // 定义更新图片的指令 Name
+    const int CMD_UPDATE_IMG = 0x1;  // 定义更新图片的指令的Name
+    const int CMD_TEST = 0x2;        // 定义测试的指令的Name
 
     protected override void PassCommand(ConnectCommand command)
     {
@@ -46,6 +47,10 @@ public class Player : ConnectionPlayerBase
                 // Do somethings...
                 // Such as UpdateImageToForm(img)...
 
+                break;
+            case CMD_TEST:
+                Logger.Log(LogLevel.Default, command.Args[0].AsString());  // 收到客户端发来的测试消息，Log 出来
+                CommandSendPool.AddCommand(CMD_TEST.CommandWithArgs("!!!Server Received Your Message!!!"));  // 在发回去，告诉客户端收到了
                 break;
         }
     }
