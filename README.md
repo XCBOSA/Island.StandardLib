@@ -135,9 +135,31 @@ public class Program
 # StandardDataStructure 项目
 此项目为启发式项目，不详细在教程中展开。  
 你可能已经发现，
-```
+```cs
 const int CMD_UPDATE_IMG = 0x1;  // 定义更新图片的指令的Name
 const int CMD_TEST = 0x2;        // 定义测试的指令的Name
 ```
 此代码在两个项目中都出现了。为了避免改动时只改了一方忘记改另一方，方便处理，所以创建 StandardDataStructure 存放共有的内容。具体类自行设计。  
 此外，此项目中应该存放传输的数据模型。Island.StandardLib只提供了有限的常见数据模型，更多的模型需要您自己描述。有关介绍参见下一章。  
+# Island.StandardLib 常用数据模型介绍
+### SInt
+*可序列化的 int ，是 int 基础类型的拓展，并可隐式转换*  
+用法同 int   
+### SBool
+*可序列化的 bool ，是 bool 基础类型的拓展，并可隐式转换*  
+用法同 bool   
+### SString
+*可序列化的 string ，是 string 基础类型的拓展，并可隐式转换*  
+用法同 string   
+***以上三个基础类型拓展主要用于需要IStorable的泛型参数中，由于使用这些类型序列化需要多占用4字节的存储空间（序列化机制决定的），所以仅在必要的情况下使用。***
+### StorImage
+*存储图像*  
+初始化：StorImage img = new StorImage(<Image>);  
+注意执行初始化时会自动将<Image>编码，此过程需要消耗短暂时间，注意时间复杂度。  
+恢复: Image rimg = img.Image;  
+注意获取 Image 属性时会自动将二进制数据解码，此过程需要消耗短暂时间，注意时间复杂度。  
+| 成员 | 含义 |
+| :----: | :----: |
+| StorImage(Image img) | 编码整个图像并初始化 |
+| byte *Data | Raw 格式的二进制已编码数据 |
+| Image Image | 编码或解码数据 |
