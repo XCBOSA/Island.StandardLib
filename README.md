@@ -51,6 +51,7 @@ public class Player : ConnectionPlayerBase
             case CMD_TEST:
                 Logger.Log(LogLevel.Default, command.Args[0].AsString());  // 收到客户端发来的测试消息，Log 出来
                 CommandSendPool.AddCommand(CMD_TEST.CommandWithArgs("!!!Server Received Your Message!!!"));  // 在发回去，告诉客户端收到了
+                // int.CommandWithArgs 是一个拓展函数（可以理解为语法糖），可以直接 0x2.CommandWithArgs(Data) 来创建一个指令，指令名0x2，数据Data。
                 break;
         }
     }
