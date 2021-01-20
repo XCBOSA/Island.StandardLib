@@ -1,12 +1,9 @@
 # Island.StandardLib
-A CSharp library for Client/Server Connection and Data Serialization, based by TCP/IP protocol.  
-一个C#的C/S连接和数据序列化库，基于TCP/IP协议。
-# 使用本项目的作品
-PhySim Lab (iOS APP) 项目采用Island.StandardLib进行序列化并保存到存档文件。  
-Natural Island (iOS APP) 项目采用Island.StandardLib进行C/S连接。  
+A CSharp library for Connection and Data Serialization, based by TCP/IP protocol.  
+一个C#的通讯和数据序列化库，基于TCP协议。
 
 # 快速开始
-一般情况下，推荐至少创建三个项目。  
+一般情况下，至少创建三个项目。  
 推荐创建的项目：  
 * Server (服务器) 项目  
   ***需要引用 Island.StandardLib.dll 和您创建的 StandardDataStructure***  
@@ -194,7 +191,7 @@ const int CMD_TEST = 0x2;        // 定义测试的指令的Name
 仅用于存储，不建议使用那些运算的函数，没有符号重载，很久之前写的不建议用不排除有错误。  
 # Island.StandardLib 自定义可序列化数据模型  
 在 Island.StandardLib 中，自定义可序列化函数需要继承 IStorable 接口，实现 void ReadFromData(DataStorage data) 和 void WriteToData(DataStorage data) 两个函数。  
-以OOP入门的学生信息类为例，我们将它改造成可序列化的类。   
+以的学生信息类为例，改造成可序列化的类。   
 ```cs
 public class Student : IStorable
 {
@@ -229,8 +226,7 @@ public class Student : IStorable
     }
 }
 ```
-### 序列化嵌套
-我们继续改造 Student 类，并新增一个 Score 类来保存学生的ABC科目成绩。
+### And Then
 ```cs
 public class Score : IStorable
 {
@@ -268,7 +264,7 @@ public class Student : IStorable
 
     public string Name;    // 学生姓名
     public int Age;        // 学生年龄
-    public Score SubjectScores;   // 每科目的成绩，我们将它改造为 Score 类型的成员。
+    public Score SubjectScores;   // 每科目的成绩，将它改造为 Score 类型的成员。
     
     // 从 DataStorage 中读出数据，使用 data.Read(out xxx)
     public void ReadFromData(DataStorage data)
@@ -288,9 +284,8 @@ public class Student : IStorable
     }
 }
 ```
-可见，序列化过程中可以嵌套其它的序列化类。
 ### 序列化继承
-我们继续改造 Student 类，将分数分离出去。
+记住调用基类。
 ```cs
 public class Student : IStorable
 {
@@ -331,6 +326,5 @@ public class ScoredStudent : Student, IStorable
     }
 }
 ```
-可见，实现序列化的类可以被继承，但子类若包含要保存的成员变量，子类也必须实现 IStorable 接口，然后在读写的时候先调用基类的读写函数，再读写自己的成员。
 ### DataStorage 类的存储空间优化
-当使用 DataStorage 类写入数据时，即使是最基本的固定长度的 byte 类型，也要先写入一个 00 00 00 01 (4字节，值为1)的大小，这4字节的大小用于读取时验证，防止由于当前标志位错误导致整个类型的读取错位，导致严重的安全事故。但是如果您足够细心，确认读写时的顺序没有问题，可以直接使用 DataStorage::WriteUncheck() 和 DataStorage::ReadUncheck() 函数来读写。由Uncheck写入的数据不会记录4字节的大小信息，只会记录这个 byte 的真实内容，然后将标志位提高一位。在读取时也不会验证大小是否正确，直接读标志位下一位的信息，这样将为每个实例省去4字节的空间，但是您要100%确定您的代码正确。
+当使用 DataStorage 类写入数据时，即使是最基本的固定长度的 byte 类型，也要先写入一个 00 00 00 01 (4字节，值为1)的大小，这4字节的大小用于读取时验证，防止由于当前标志位错误导致整个类型的读取错位，导致严重的安全事故。但是如果您足够细心，确认读写时的顺序没有问题，可以直接使用 DataStorage::WriteUncheck() 和 DataStorage::ReadUncheck() 函数来读写。由Uncheck写入的数据不会记录4字节的大小信息，只会记录这个 byte 的真实内容，然后将标志位提高一位。在读取时也不会验证大小是否正确，直接读标志位下一位的信息，这样将为每个实例省去4字节的空间。
